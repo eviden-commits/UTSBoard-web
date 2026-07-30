@@ -123,6 +123,16 @@
   .upcoming-date{font-size:10px;color:var(--sys-label-3);flex-shrink:0;}
   .upcoming-empty{font-size:12px;color:var(--sys-label-4);text-align:center;padding:8px;}
 
+  /* ---------- Task requests (# tagged sub-items) ---------- */
+  .taskreq-card{margin-top:12px;padding:14px;}
+  .taskreq-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--sys-separator-2);cursor:pointer;}
+  .taskreq-item:last-child{border-bottom:none;}
+  .taskreq-tag{font-size:10px;font-weight:800;color:var(--sys-blue);background:var(--sys-blue-bg);border-radius:8px;padding:2px 8px;flex-shrink:0;white-space:nowrap;display:flex;align-items:center;gap:2px;}
+  .taskreq-tag.mailed{color:var(--sys-green);background:var(--sys-green-bg);}
+  .taskreq-text{font-size:12px;color:var(--sys-label);flex:1;min-width:0;line-height:1.4;}
+  .taskreq-num{font-size:10px;color:var(--sys-label-4);font-family:var(--font-mono,monospace);flex-shrink:0;}
+  .taskreq-empty{font-size:12px;color:var(--sys-label-4);text-align:center;padding:8px;}
+
   /* ---------- Subscriber list ---------- */
   .sub-row{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border:1px solid var(--sys-separator);border-radius:9px;margin-bottom:6px;}
   .sub-row-name{font-size:12px;font-weight:700;}
@@ -204,6 +214,10 @@
         <div class="upcoming-title">🔔 다가오는 중요 일정 (D-3 이내)</div>
         <div id="upcomingList"></div>
       </div>
+      <div class="card taskreq-card">
+        <div class="upcoming-title">📌 업무요청사항</div>
+        <div id="taskReqList"></div>
+      </div>
     </div>
 
     <div class="col-bullpen tab-panel" data-panel="bp">
@@ -270,8 +284,8 @@
       <div class="file-list" id="evFileList"></div>
     </div>
     <div class="form-row">
-      <label>추가 내용 (진행상황 · 후속 업무, 최대 4개)</label>
-      <input type="text" id="evSub1" class="sub-input" placeholder="추가 내용 1">
+      <label>추가 내용 (진행상황 · 후속 업무, 최대 4개 · #이름 태그 시 업무요청사항에 표시)</label>
+      <input type="text" id="evSub1" class="sub-input" placeholder="예: #박부장 검토 요청">
       <input type="text" id="evSub2" class="sub-input" placeholder="추가 내용 2">
       <input type="text" id="evSub3" class="sub-input" placeholder="추가 내용 3">
       <input type="text" id="evSub4" class="sub-input" placeholder="추가 내용 4">
@@ -369,7 +383,40 @@ function loadData() {
     renderCalendar();
     renderBullpen();
     renderUpcoming();
+    renderTaskRequests();
   });
+}
+
+/* ---------- 업무요청사항: 추가내용(subItems)에 #이름 태그가 있으면 모아서 보여줌 ---------- */
+function renderTaskRequests() {
+  var subscriberNames = (STATE.subscribers || []).map(function(s){ return s.name; });
+  var items = [];
+  STATE.events.forEach(function(e){
+    (e.subItems || []).forEach(function(s, idx){
+      var tags = s.match(/#([^\s#]+)/g);
+      if (!tags) return;
+      tags.forEach(function(tagRaw){
+        var tag = tagRaw.slice(1);
+        items.push({
+          tag: tag,
+          mailed: subscriberNames.indexOf(tag) !== -1,
+          text: s,
+          eventId: e.id,
+          num: (STATE.numberMap[e.id] || '?') + '-' + (idx + 1),
+          sortKey: e.updatedAt || e.createdAt || ''
+        });
+      });
+    });
+  });
+  items.sort(function(a,b){ return b.sortKey.localeCompare(a.sortKey); });
+
+  var html = items.map(function(it){
+    return '<div class="taskreq-item" onclick="openEventModal(\'' + it.eventId + '\')">' +
+      '<div class="taskreq-tag' + (it.mailed ? ' mailed' : '') + '">' + (it.mailed ? '✉ ' : '') + '#' + escapeHtml(it.tag) + '</div>' +
+      '<div class="taskreq-text">' + escapeHtml(it.text) + '</div>' +
+      '<div class="taskreq-num">' + it.num + '</div></div>';
+  }).join('');
+  document.getElementById('taskReqList').innerHTML = html || '<div class="taskreq-empty">#태그된 업무요청이 없습니다. 불펜 항목의 "추가 내용"에 #이름을 넣어보세요.</div>';
 }
 
 function daysBetween(key1, key2) {
