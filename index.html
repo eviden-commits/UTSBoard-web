@@ -141,6 +141,17 @@
   .taskreq-empty{font-size:12px;color:var(--sys-label-4);text-align:center;padding:8px;}
   .taskreq-del{width:18px;height:18px;border-radius:50%;border:none;background:var(--sys-red-bg);color:var(--sys-red);font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;margin-top:1px;}
 
+  /* ---------- 주요 메모사항 ---------- */
+  .memo-card{margin-top:12px;padding:14px;}
+  .memo-add-btn{margin-left:auto;width:20px;height:20px;border-radius:50%;border:none;background:var(--sys-blue);color:#fff;font-size:13px;font-weight:800;cursor:pointer;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .memo-add-btn:hover{background:#0069d9;}
+  .memo-item{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--sys-separator-2);}
+  .memo-item:last-child{border-bottom:none;}
+  .memo-text{font-size:12px;color:var(--sys-label);white-space:pre-wrap;line-height:1.4;}
+  .memo-meta{font-size:9.5px;color:var(--sys-label-4);margin-top:3px;}
+  .memo-del{width:18px;height:18px;border-radius:50%;border:none;background:var(--sys-red-bg);color:var(--sys-red);font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;margin-top:1px;}
+  .memo-empty{font-size:12px;color:var(--sys-label-4);text-align:center;padding:8px;}
+
   /* ---------- Subscriber list ---------- */
   .sub-row{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border:1px solid var(--sys-separator);border-radius:9px;margin-bottom:6px;}
   .sub-row-name{font-size:12px;font-weight:700;}
@@ -170,6 +181,8 @@
   .flag-chip.done-chip.active{border-color:var(--sys-green);background:var(--sys-green-bg);}
   .sub-input{margin-bottom:6px;}
   .sub-input:last-child{margin-bottom:0;}
+  .sub-add-btn{background:none;border:none;color:var(--sys-blue);font-size:12px;font-weight:700;cursor:pointer;padding:5px 0 0;}
+  .sub-add-btn:hover{text-decoration:underline;}
   .modal-actions{display:flex;gap:8px;margin-top:16px;}
   .modal-actions .btn{flex:1;}
   .file-list{font-size:11px;color:var(--sys-label-3);margin-top:6px;}
@@ -229,6 +242,10 @@
       <div class="card taskreq-card">
         <div class="upcoming-title">📌 업무요청사항</div>
         <div id="taskReqList"></div>
+      </div>
+      <div class="card memo-card">
+        <div class="upcoming-title">📝 주요 메모사항<button class="memo-add-btn" onclick="addMemoNow()" title="메모 추가">＋</button></div>
+        <div id="memoList"></div>
       </div>
     </div>
 
@@ -306,9 +323,10 @@
     <div class="form-row">
       <label>추가 내용 (진행상황 · 후속 업무, 최대 4개 · #이름 태그 시 업무요청사항에 표시)</label>
       <input type="text" id="evSub1" class="sub-input" placeholder="예: #박부장 검토 요청">
-      <input type="text" id="evSub2" class="sub-input" placeholder="추가 내용 2">
-      <input type="text" id="evSub3" class="sub-input" placeholder="추가 내용 3">
-      <input type="text" id="evSub4" class="sub-input" placeholder="추가 내용 4">
+      <input type="text" id="evSub2" class="sub-input" placeholder="추가 내용 2" style="display:none;">
+      <input type="text" id="evSub3" class="sub-input" placeholder="추가 내용 3" style="display:none;">
+      <input type="text" id="evSub4" class="sub-input" placeholder="추가 내용 4" style="display:none;">
+      <button type="button" class="sub-add-btn" id="subAddBtn" onclick="revealNextSubInput()">+ 추가 내용</button>
     </div>
     <div class="modal-actions">
       <button class="btn btn-danger" id="evDeleteBtn" style="display:none;" onclick="deleteEventNow()">삭제</button>
@@ -355,6 +373,7 @@ var STATE = {
   writePassword: '',
   events: [],
   subscribers: [],
+  memos: [],
   categories: {},
   numberMap: {},
   bpFilter: 'active',
@@ -400,9 +419,11 @@ function loadData() {
     if (res.status !== 'ok') { toast(res.message); return; }
     STATE.events = res.events || [];
     STATE.subscribers = res.subscribers || [];
+    STATE.memos = res.memos || [];
     STATE.categories = res.categories || {};
     renderCalendar();
     renderBullpen();
+    renderMemos();
     renderUpcoming();
     renderTaskRequests();
   });
@@ -457,6 +478,46 @@ function removeTaskRequest(eventId, subIdx) {
       subItems: newSubItems, attachments: e.attachments,
       writePassword: STATE.writePassword
     }).then(function(res){
+      if (res.status === 'ok') {
+        toast('삭제되었습니다.');
+        loadData();
+      } else {
+        toast(res.message);
+      }
+    });
+  });
+}
+
+/* ---------- 주요 메모사항 ---------- */
+function renderMemos() {
+  var memos = (STATE.memos || []).slice().sort(function(a,b){ return b.createdAt.localeCompare(a.createdAt); });
+  var html = memos.map(function(m){
+    return '<div class="memo-item"><div><div class="memo-text">' + escapeHtml(m.content) + '</div>' +
+      '<div class="memo-meta">' + m.createdAt + '</div></div>' +
+      '<button class="memo-del" onclick="removeMemoNow(\'' + m.id + '\')">✕</button></div>';
+  }).join('');
+  document.getElementById('memoList').innerHTML = html || '<div class="memo-empty">등록된 메모가 없습니다.</div>';
+}
+
+function addMemoNow() {
+  requireWritePassword(function(){
+    var text = prompt('메모 내용을 입력하세요');
+    if (!text || !text.trim()) return;
+    callApi({ action: 'addMemo', content: text.trim(), writePassword: STATE.writePassword }).then(function(res){
+      if (res.status === 'ok') {
+        toast('메모가 추가되었습니다.');
+        loadData();
+      } else {
+        toast(res.message);
+      }
+    });
+  });
+}
+
+function removeMemoNow(id) {
+  if (!confirm('이 메모를 삭제하시겠습니까?')) return;
+  requireWritePassword(function(){
+    callApi({ action: 'deleteMemo', id: id, writePassword: STATE.writePassword }).then(function(res){
       if (res.status === 'ok') {
         toast('삭제되었습니다.');
         loadData();
@@ -632,7 +693,24 @@ function toggleChip(chipId, checked) {
 
 function setSubItemInputs(values) {
   for (var i = 0; i < 4; i++) {
-    document.getElementById('evSub' + (i+1)).value = (values && values[i]) || '';
+    var el = document.getElementById('evSub' + (i+1));
+    var v = (values && values[i]) || '';
+    el.value = v;
+    if (i === 0) continue; // 1번은 항상 표시
+    el.style.display = v ? 'block' : 'none';
+  }
+  document.getElementById('subAddBtn').style.display = (values && values.length >= 4) ? 'none' : 'inline-block';
+}
+
+function revealNextSubInput() {
+  for (var i = 2; i <= 4; i++) {
+    var el = document.getElementById('evSub' + i);
+    if (el.style.display === 'none') {
+      el.style.display = 'block';
+      el.focus();
+      if (i === 4) document.getElementById('subAddBtn').style.display = 'none';
+      return;
+    }
   }
 }
 
