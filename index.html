@@ -268,7 +268,7 @@
       <div class="form-row">
         <label>분류</label>
         <select id="evCategory">
-          <option>협상</option><option>집회</option><option>공문</option>
+          <option>협상</option><option>집회</option><option>공문</option><option>공고</option>
           <option>총회</option><option>휴가</option><option selected>기타</option>
         </select>
       </div>
@@ -417,6 +417,7 @@ function renderTaskRequests() {
           mailed: subscriberNames.indexOf(tag) !== -1,
           text: s,
           eventId: e.id,
+          subIdx: idx,
           num: (STATE.numberMap[e.id] || '?') + '-' + (idx + 1),
           sortKey: e.updatedAt || e.createdAt || ''
         });
@@ -429,9 +430,34 @@ function renderTaskRequests() {
     return '<div class="taskreq-item" onclick="openEventModal(\'' + it.eventId + '\')">' +
       '<div class="taskreq-tag' + (it.mailed ? ' mailed' : '') + '">' + (it.mailed ? '✉ ' : '') + '#' + escapeHtml(it.tag) + '</div>' +
       '<div class="taskreq-text">' + escapeHtml(it.text) + '</div>' +
-      '<div class="taskreq-num">' + it.num + '</div></div>';
+      '<div class="taskreq-num">' + it.num + '</div>' +
+      '<button class="taskreq-del" onclick="event.stopPropagation();removeTaskRequest(\'' + it.eventId + '\',' + it.subIdx + ')">✕</button></div>';
   }).join('');
   document.getElementById('taskReqList').innerHTML = html || '<div class="taskreq-empty">#태그된 업무요청이 없습니다. 불펜 항목의 "추가 내용"에 #이름을 넣어보세요.</div>';
+}
+
+function removeTaskRequest(eventId, subIdx) {
+  var e = STATE.events.find(function(x){ return x.id === eventId; });
+  if (!e) return;
+  if (!confirm('이 업무요청 항목을 삭제하시겠습니까?')) return;
+  requireWritePassword(function(){
+    var newSubItems = (e.subItems || []).slice();
+    newSubItems.splice(subIdx, 1);
+    callApi({
+      action: 'updateEvent', id: e.id, title: e.title, content: e.content,
+      startDate: e.startDate, endDate: e.endDate, category: e.category, author: e.author,
+      urgent: e.urgent, important: e.important, done: e.done,
+      subItems: newSubItems, attachments: e.attachments,
+      writePassword: STATE.writePassword
+    }).then(function(res){
+      if (res.status === 'ok') {
+        toast('삭제되었습니다.');
+        loadData();
+      } else {
+        toast(res.message);
+      }
+    });
+  });
 }
 
 function daysBetween(key1, key2) {
