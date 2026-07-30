@@ -63,39 +63,50 @@
   .card{background:var(--sys-surface);border:1px solid var(--sys-separator);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);}
 
   /* ---------- Calendar ---------- */
-  .cal-card{padding:16px;}
-  .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .cal-card{padding:14px;}
+  .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
   .cal-nav{display:flex;align-items:center;gap:10px;}
-  .cal-title{font-size:15px;font-weight:700;min-width:100px;text-align:center;}
-  .view-toggle{display:flex;background:var(--sys-surface-2);border-radius:var(--r-xs);padding:2px;}
-  .view-toggle button{border:none;background:none;padding:6px 12px;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;color:var(--sys-label-3);}
-  .view-toggle button.active{background:var(--sys-surface);color:var(--sys-label);box-shadow:var(--shadow-sm);}
+  .cal-title{font-size:13.5px;font-weight:800;min-width:80px;text-align:center;letter-spacing:-0.01em;}
+  .view-toggle{display:flex;background:var(--sys-surface-2);border-radius:10px;padding:2px;}
+  .view-toggle button{border:none;background:none;padding:5px 10px;font-size:11px;font-weight:700;border-radius:8px;cursor:pointer;color:var(--sys-label-3);transition:all .12s;}
+  .view-toggle button.active{background:var(--sys-surface);color:var(--sys-blue);box-shadow:var(--shadow-sm);}
 
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-  .cal-dow{font-size:11px;text-align:center;color:var(--sys-label-4);font-weight:600;padding-bottom:4px;}
-  .cal-cell{min-height:86px;border-radius:var(--r-xs);border:1px solid var(--sys-separator-2);padding:4px;cursor:pointer;background:var(--sys-surface);position:relative;overflow:hidden;}
-  .cal-cell:hover{background:var(--sys-surface-2);}
-  .cal-cell.other-month{opacity:0.35;}
-  .cal-cell.today{border-color:var(--sys-blue);}
-  .cal-daynum{font-size:11px;font-weight:600;color:var(--sys-label-2);margin-bottom:3px;}
-  .cal-bar{font-size:10px;color:#fff;border-radius:4px;padding:1px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .cal-dow{font-size:10px;text-align:center;color:var(--sys-label-4);font-weight:700;padding-bottom:4px;letter-spacing:0.02em;}
+  .cal-dow.sun{color:#FF3B30;}
+  .cal-dow.sat{color:#007AFF;}
+  .cal-cell{min-height:60px;border-radius:10px;border:1px solid transparent;padding:4px 4px 3px;cursor:pointer;background:var(--sys-surface-2);position:relative;overflow:hidden;transition:transform .12s ease,box-shadow .12s ease,background .12s ease;}
+  .cal-cell:hover{background:var(--sys-surface);transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,0.06);}
+  .cal-cell.other-month{opacity:0.32;}
+  .cal-cell.today{background:linear-gradient(150deg,var(--sys-blue-bg),var(--sys-surface-2));border-color:rgba(0,122,255,0.35);box-shadow:0 0 0 1px rgba(0,122,255,0.12);}
+  .cal-daynum{font-size:10px;font-weight:700;color:var(--sys-label-2);margin-bottom:2px;display:flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;}
+  .cal-cell.today .cal-daynum{background:var(--sys-blue);color:#fff;}
+  .cal-bar{font-size:8.5px;font-weight:600;color:#fff;border-radius:20px;padding:1px 6px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 2px rgba(0,0,0,0.08);letter-spacing:0.01em;}
 
-  .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
-  .week-col{min-height:200px;}
-  .week-dow{font-size:11px;font-weight:700;text-align:center;margin-bottom:6px;color:var(--sys-label-3);}
-  .week-event{font-size:11px;color:#fff;border-radius:6px;padding:4px 6px;margin-bottom:4px;cursor:pointer;}
+  .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .week-col{min-height:140px;background:var(--sys-surface-2);border-radius:10px;padding:6px 4px;}
+  .week-dow{font-size:10px;font-weight:700;text-align:center;margin-bottom:5px;color:var(--sys-label-3);}
+  .week-event{font-size:10px;font-weight:600;color:#fff;border-radius:8px;padding:3px 6px;margin-bottom:3px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.08);}
 
   /* ---------- Bullpen ---------- */
   .bullpen-card{padding:16px;}
   .bullpen-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
   .bullpen-title{font-size:15px;font-weight:700;}
-  .bullpen-list{display:flex;flex-direction:column;gap:8px;max-height:70vh;overflow-y:auto;}
-  .bp-item{border:1px solid var(--sys-separator);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;}
-  .bp-item:hover{background:var(--sys-surface-2);}
+  .bullpen-list{display:flex;flex-direction:column;max-height:70vh;overflow-y:auto;}
+  .bp-item{display:flex;gap:10px;cursor:pointer;padding:2px 0;position:relative;}
+  .bp-rail{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+  .bp-num{width:22px;height:22px;border-radius:50%;background:var(--sys-surface-2);border:1px solid var(--sys-separator);font-size:10px;font-weight:800;color:var(--sys-label-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono, monospace);}
+  .bp-item:first-child .bp-num{background:var(--sys-blue);border-color:var(--sys-blue);color:#fff;}
+  .bp-rail-line{flex:1;width:1px;background:var(--sys-separator);margin:2px 0;min-height:8px;}
+  .bp-item:last-child .bp-rail-line{display:none;}
+  .bp-body{flex:1;min-width:0;border:1px solid var(--sys-separator);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:10px;transition:background .12s;}
+  .bp-item:hover .bp-body{background:var(--sys-surface-2);}
   .bp-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .bp-title{font-size:13px;font-weight:700;}
   .bp-tag{font-size:10px;font-weight:700;color:#fff;border-radius:8px;padding:2px 8px;flex-shrink:0;}
-  .bp-date{font-size:11px;color:var(--sys-label-3);margin-top:4px;}
+  .bp-meta{display:flex;align-items:center;gap:6px;margin-top:4px;}
+  .bp-date{font-size:11px;color:var(--sys-label-3);}
+  .bp-attach{font-size:10px;font-weight:700;color:var(--sys-blue);background:var(--sys-blue-bg);border-radius:8px;padding:1px 7px;display:inline-flex;align-items:center;gap:3px;}
   .bp-content{font-size:12px;color:var(--sys-label-2);margin-top:4px;white-space:pre-wrap;}
   .bp-urgent{color:var(--sys-red);font-weight:700;}
 
@@ -351,7 +362,7 @@ function renderCalendar() {
     var startOffset = firstDay.getDay();
     var gridStart = new Date(y, m, 1 - startOffset);
     var html = '<div class="cal-grid">';
-    dow.forEach(function(d){ html += '<div class="cal-dow">' + d + '</div>'; });
+    dow.forEach(function(d,di){ html += '<div class="cal-dow ' + (di===0?'sun':di===6?'sat':'') + '">' + d + '</div>'; });
     var todayKey = dateKey(new Date());
     for (var i = 0; i < 42; i++) {
       var cellDate = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i);
@@ -360,10 +371,10 @@ function renderCalendar() {
       var evs = eventsOnDate(key);
       html += '<div class="cal-cell ' + (otherMonth?'other-month':'') + ' ' + (key===todayKey?'today':'') + '" onclick="openEventModal(null,\'' + key + '\')">';
       html += '<div class="cal-daynum">' + cellDate.getDate() + '</div>';
-      evs.slice(0,3).forEach(function(e){
+      evs.slice(0,2).forEach(function(e){
         html += '<div class="cal-bar" style="background:' + e.color + '" onclick="event.stopPropagation();openEventModal(\'' + e.id + '\')">' + escapeHtml(e.title) + '</div>';
       });
-      if (evs.length > 3) html += '<div style="font-size:10px;color:var(--sys-label-4);">+' + (evs.length-3) + '건</div>';
+      if (evs.length > 2) html += '<div style="font-size:8px;font-weight:700;color:var(--sys-label-4);padding-left:2px;">+' + (evs.length-2) + '건</div>';
       html += '</div>';
     }
     html += '</div>';
@@ -390,15 +401,25 @@ function renderCalendar() {
 
 /* ---------- Bullpen ---------- */
 function renderBullpen() {
+  // 히스토리 성격상 번호는 등록 순서(오래된 것=1)로 고정 부여, 화면은 최신순으로 표시
+  var chronological = STATE.events.slice().sort(function(a,b){ return a.createdAt.localeCompare(b.createdAt); });
+  var numberMap = {};
+  chronological.forEach(function(e, i){ numberMap[e.id] = i + 1; });
+
   var sorted = STATE.events.slice().sort(function(a,b){ return b.createdAt.localeCompare(a.createdAt); });
   var html = '';
   sorted.forEach(function(e){
+    var attachCount = (e.attachments || []).length;
     html += '<div class="bp-item" onclick="openEventModal(\'' + e.id + '\')">';
+    html += '<div class="bp-rail"><div class="bp-num">' + numberMap[e.id] + '</div><div class="bp-rail-line"></div></div>';
+    html += '<div class="bp-body">';
     html += '<div class="bp-top"><div class="bp-title">' + (e.urgent?'<span class="bp-urgent">[긴급] </span>':'') + escapeHtml(e.title) + '</div>';
     html += '<div class="bp-tag" style="background:' + e.color + '">' + e.category + '</div></div>';
-    html += '<div class="bp-date">' + e.startDate + (e.endDate!==e.startDate?(' ~ ' + e.endDate):'') + '</div>';
-    html += '<div class="bp-content">' + escapeHtml((e.content||'').slice(0,80)) + '</div>';
+    html += '<div class="bp-meta"><div class="bp-date">' + e.startDate + (e.endDate!==e.startDate?(' ~ ' + e.endDate):'') + '</div>';
+    if (attachCount > 0) html += '<div class="bp-attach">📎 ' + attachCount + '</div>';
     html += '</div>';
+    html += '<div class="bp-content">' + escapeHtml((e.content||'').slice(0,80)) + '</div>';
+    html += '</div></div>';
   });
   document.getElementById('bullpenList').innerHTML = html || '<div style="color:var(--sys-label-4);font-size:13px;text-align:center;padding:20px;">등록된 일정이 없습니다.</div>';
 }
