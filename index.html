@@ -193,6 +193,8 @@
     <div class="nav-title">2026년 플랜트 노조 대응</div>
     <div class="nav-actions">
       <a class="icon-btn" href="https://docs.google.com/spreadsheets/d/1N6ugD7Ftivw2BUF-bKfVtVAkFo8cqH3XSai_DTfTBls/edit" target="_blank" rel="noopener" title="구글 스프레드시트 열기">📊</a>
+      <button class="icon-btn" title="일일 배치 발송 트리거 설치" onclick="installBatchTrigger()">⏰</button>
+      <button class="icon-btn" title="진행현황 요약 지금 발송" onclick="sendBatchNow()">🚩</button>
       <button class="icon-btn" title="이메일 알림 등록" onclick="openSubscriberModal()">✉</button>
       <button class="icon-btn" title="편집 잠금 해제" onclick="promptWritePassword()">🔒</button>
     </div>
@@ -783,6 +785,23 @@ function requireWritePassword(cb) {
 function promptWritePassword() {
   STATE.pendingWriteAction = null;
   document.getElementById('writeModalBackdrop').classList.add('show');
+}
+
+function installBatchTrigger() {
+  requireWritePassword(function(){
+    callApi({ action: 'installTrigger', writePassword: STATE.writePassword }).then(function(res){
+      toast(res.status === 'ok' ? (res.message || '설치되었습니다.') : res.message);
+    });
+  });
+}
+
+function sendBatchNow() {
+  if (!confirm('진행중인(완료되지 않은, 긴급 제외) 불펜 항목의 진행현황 요약 메일을 구독자 전원에게 지금 발송하시겠습니까?')) return;
+  requireWritePassword(function(){
+    callApi({ action: 'runBatchNow', writePassword: STATE.writePassword }).then(function(res){
+      toast(res.status === 'ok' ? res.message : res.message);
+    });
+  });
 }
 
 function confirmWritePassword() {
