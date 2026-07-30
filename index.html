@@ -586,7 +586,8 @@ function renderBullpen() {
   STATE.numberMap = numberMap;
 
   var filtered = STATE.events.filter(function(e){ return STATE.bpFilter === 'done' ? e.done : !e.done; });
-  var sorted = filtered.slice().sort(function(a,b){ return b.createdAt.localeCompare(a.createdAt); });
+  // 최근에 새로 작성했거나 수정한 항목이 맨 위로 오도록 updatedAt 기준 내림차순 정렬
+  var sorted = filtered.slice().sort(function(a,b){ return (b.updatedAt||b.createdAt).localeCompare(a.updatedAt||a.createdAt); });
   var html = '';
   sorted.forEach(function(e){
     var attachCount = (e.attachments || []).length;
