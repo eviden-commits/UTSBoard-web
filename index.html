@@ -276,7 +276,7 @@ function toast(msg) {
 }
 
 function callApi(payload) {
-  payload.password = STATE.loginPassword;
+  if (payload.password === undefined) payload.password = STATE.loginPassword;
   // Content-Type: text/plain으로 강제하여 Simple Request(프리플라이트 없음) 규격으로 전송
   return fetch(GAS_URL, {
     method: 'POST',
