@@ -632,7 +632,18 @@ function setSubItemInputs(values) {
   }
 }
 
+/**
+ * 편집 비밀번호를 모르는(=아직 입력하지 않은) 사람은 불펜/캘린더 모달 자체를
+ * 열 수 없게 게이트한다. 실제 저장/삭제는 항상 서버에서 재검증되므로,
+ * 여기서의 게이트는 UX상의 접근 차단일 뿐 보안 경계는 아니다.
+ */
 function openEventModal(id, dateKeyStr) {
+  requireWritePassword(function(){
+    openEventModalImpl_(id, dateKeyStr);
+  });
+}
+
+function openEventModalImpl_(id, dateKeyStr) {
   document.getElementById('evId').value = '';
   document.getElementById('evTitle').value = '';
   document.getElementById('evContent').value = '';
