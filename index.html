@@ -657,7 +657,7 @@ function renderBullpen() {
     html += '<div class="bp-rail"><div class="bp-num">' + numberMap[e.id] + '</div><div class="bp-rail-line"></div></div>';
     html += '<div class="bp-body' + (e.done ? ' done' : '') + '">';
     html += '<div class="bp-top"><div class="bp-title">' + (e.urgent?'<span class="bp-urgent">[긴급] </span>':'') + (e.important?'⭐ ':'') + escapeHtml(e.title) + '</div>';
-    html += '<div class="bp-tag" style="background:' + e.color + '">' + e.category + '</div></div>';
+    html += '<div class="bp-tag" style="background:' + e.color + '">' + escapeHtml(e.category) + '</div></div>';
     html += '<div class="bp-meta"><div class="bp-date">' + e.startDate + (e.endDate!==e.startDate?(' ~ ' + e.endDate):'') + '</div>';
     if (attachCount > 0) html += '<div class="bp-attach">📎 ' + attachCount + '</div>';
     html += '</div>';
@@ -907,8 +907,9 @@ function openSubscriberModal() {
 
 function renderSubList() {
   var html = (STATE.subscribers || []).map(function(s){
+    var safeEmailAttr = escapeHtml(s.email).replace(/'/g, "\\'");
     return '<div class="sub-row"><div><div class="sub-row-name">' + escapeHtml(s.name) + '</div><div class="sub-row-email">' + escapeHtml(s.email) + '</div></div>' +
-      '<button class="sub-del" onclick="removeSubscriber(\'' + s.email.replace(/'/g,"\\'") + '\')">✕</button></div>';
+      '<button class="sub-del" onclick="removeSubscriber(\'' + safeEmailAttr + '\')">✕</button></div>';
   }).join('');
   document.getElementById('subList').innerHTML = html || '<div class="sub-list-empty">등록된 구독자가 없습니다.</div>';
 }
