@@ -109,6 +109,27 @@
   .bp-attach{font-size:10px;font-weight:700;color:var(--sys-blue);background:var(--sys-blue-bg);border-radius:8px;padding:1px 7px;display:inline-flex;align-items:center;gap:3px;}
   .bp-content{font-size:12px;color:var(--sys-label-2);margin-top:4px;white-space:pre-wrap;}
   .bp-urgent{color:var(--sys-red);font-weight:700;}
+  .bp-subwrap{margin-top:7px;padding-top:7px;border-top:1px dashed var(--sys-separator);display:flex;flex-direction:column;gap:5px;}
+  .bp-subitem{font-size:11px;color:var(--sys-label-2);display:flex;gap:6px;align-items:flex-start;}
+  .bp-subnum{font-family:var(--font-mono,monospace);font-weight:700;color:var(--sys-blue);flex-shrink:0;}
+
+  /* ---------- Upcoming (D-3) ---------- */
+  .upcoming-card{margin-top:12px;padding:14px;}
+  .upcoming-title{font-size:12px;font-weight:800;color:var(--sys-label-2);margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+  .upcoming-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--sys-separator-2);cursor:pointer;}
+  .upcoming-item:last-child{border-bottom:none;}
+  .upcoming-dday{font-size:10px;font-weight:800;color:#fff;background:var(--sys-red);border-radius:8px;padding:2px 7px;flex-shrink:0;font-family:var(--font-mono,monospace);}
+  .upcoming-title-text{font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .upcoming-date{font-size:10px;color:var(--sys-label-3);flex-shrink:0;}
+  .upcoming-empty{font-size:12px;color:var(--sys-label-4);text-align:center;padding:8px;}
+
+  /* ---------- Subscriber list ---------- */
+  .sub-row{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border:1px solid var(--sys-separator);border-radius:9px;margin-bottom:6px;}
+  .sub-row-name{font-size:12px;font-weight:700;}
+  .sub-row-email{font-size:10.5px;color:var(--sys-label-3);}
+  .sub-del{width:20px;height:20px;border-radius:50%;border:none;background:var(--sys-red-bg);color:var(--sys-red);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;}
+  .sub-list{max-height:180px;overflow-y:auto;margin-bottom:14px;}
+  .sub-list-empty{font-size:12px;color:var(--sys-label-4);text-align:center;padding:8px;}
 
   /* ---------- Modal ---------- */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;display:none;align-items:center;justify-content:center;padding:16px;}
@@ -121,7 +142,15 @@
   .form-row input:focus, .form-row textarea:focus, .form-row select:focus{border-color:var(--sys-blue);background:var(--sys-surface);}
   .form-2col{display:flex;gap:10px;}
   .form-2col .form-row{flex:1;}
-  .checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sys-label);}
+  .flag-row{display:flex;gap:8px;margin-bottom:12px;}
+  .flag-chip{flex:1;display:flex;align-items:flex-start;gap:8px;padding:9px 10px;border:1.5px solid var(--sys-separator);border-radius:var(--r-sm);cursor:pointer;background:var(--sys-surface-2);transition:all .12s;}
+  .flag-chip input{width:15px;height:15px;flex-shrink:0;margin-top:1px;accent-color:var(--sys-blue);}
+  .flag-chip-label{font-size:12px;font-weight:700;color:var(--sys-label);display:block;}
+  .flag-chip-sub{font-size:10.5px;font-weight:400;color:var(--sys-label-3);display:block;margin-top:1px;line-height:1.3;}
+  .flag-chip.urgent-chip.active{border-color:var(--sys-red);background:var(--sys-red-bg);}
+  .flag-chip.important-chip.active{border-color:var(--sys-orange);background:var(--sys-orange-bg);}
+  .sub-input{margin-bottom:6px;}
+  .sub-input:last-child{margin-bottom:0;}
   .modal-actions{display:flex;gap:8px;margin-top:16px;}
   .modal-actions .btn{flex:1;}
   .file-list{font-size:11px;color:var(--sys-label-3);margin-top:6px;}
@@ -170,6 +199,10 @@
           </div>
         </div>
         <div id="calBody"></div>
+      </div>
+      <div class="card upcoming-card">
+        <div class="upcoming-title">🔔 다가오는 중요 일정 (D-3 이내)</div>
+        <div id="upcomingList"></div>
       </div>
     </div>
 
@@ -221,13 +254,27 @@
         <input type="text" id="evAuthor" placeholder="이름">
       </div>
     </div>
-    <div class="form-row checkbox-row">
-      <input type="checkbox" id="evUrgent"> <label style="margin:0;" for="evUrgent">긴급 (저장 즉시 이메일 발송)</label>
+    <div class="flag-row">
+      <label class="flag-chip urgent-chip" id="urgentChip">
+        <input type="checkbox" id="evUrgent" onchange="toggleChip('urgentChip', this.checked)">
+        <span><span class="flag-chip-label">🚨 긴급</span><span class="flag-chip-sub">저장 즉시 이메일 발송</span></span>
+      </label>
+      <label class="flag-chip important-chip" id="importantChip">
+        <input type="checkbox" id="evImportant" onchange="toggleChip('importantChip', this.checked)">
+        <span><span class="flag-chip-label">⭐ 중요</span><span class="flag-chip-sub">D-3 임박 위젯에 표시</span></span>
+      </label>
     </div>
     <div class="form-row">
       <label>첨부파일</label>
       <input type="file" id="evFile" multiple>
       <div class="file-list" id="evFileList"></div>
+    </div>
+    <div class="form-row">
+      <label>추가 내용 (진행상황 · 후속 업무, 최대 4개)</label>
+      <input type="text" id="evSub1" class="sub-input" placeholder="추가 내용 1">
+      <input type="text" id="evSub2" class="sub-input" placeholder="추가 내용 2">
+      <input type="text" id="evSub3" class="sub-input" placeholder="추가 내용 3">
+      <input type="text" id="evSub4" class="sub-input" placeholder="추가 내용 4">
     </div>
     <div class="modal-actions">
       <button class="btn btn-danger" id="evDeleteBtn" style="display:none;" onclick="deleteEventNow()">삭제</button>
@@ -253,6 +300,7 @@
 <div class="modal-backdrop" id="subModalBackdrop">
   <div class="modal" style="max-width:340px;">
     <h3>이메일 알림 등록</h3>
+    <div class="sub-list" id="subList"></div>
     <div class="form-row"><label>이름</label><input type="text" id="subName"></div>
     <div class="form-row"><label>이메일</label><input type="email" id="subEmail"></div>
     <div class="modal-actions">
@@ -272,7 +320,9 @@ var STATE = {
   loginPassword: '',
   writePassword: '',
   events: [],
+  subscribers: [],
   categories: {},
+  numberMap: {},
   view: 'month',
   cursor: new Date(),
   pendingWriteAction: null,
@@ -314,10 +364,37 @@ function loadData() {
   callApi({ action: 'loadData' }).then(function(res){
     if (res.status !== 'ok') { toast(res.message); return; }
     STATE.events = res.events || [];
+    STATE.subscribers = res.subscribers || [];
     STATE.categories = res.categories || {};
     renderCalendar();
     renderBullpen();
+    renderUpcoming();
   });
+}
+
+function daysBetween(key1, key2) {
+  var d1 = new Date(key1 + 'T00:00:00Z');
+  var d2 = new Date(key2 + 'T00:00:00Z');
+  return Math.round((d2 - d1) / 86400000);
+}
+
+/* ---------- Upcoming (D-3, 중요 표시된 일정만) ---------- */
+function renderUpcoming() {
+  var todayKey = dateKey(new Date());
+  var upcoming = STATE.events.filter(function(e){
+    var d = daysBetween(todayKey, e.startDate);
+    return e.important && d >= 0 && d <= 3;
+  }).sort(function(a,b){ return a.startDate.localeCompare(b.startDate); });
+
+  var html = upcoming.map(function(e){
+    var d = daysBetween(todayKey, e.startDate);
+    var dday = d === 0 ? 'D-DAY' : ('D-' + d);
+    return '<div class="upcoming-item" onclick="openEventModal(\'' + e.id + '\')">' +
+      '<div class="upcoming-dday">' + dday + '</div>' +
+      '<div class="upcoming-title-text">' + escapeHtml(e.title) + '</div>' +
+      '<div class="upcoming-date">' + e.startDate + '</div></div>';
+  }).join('');
+  document.getElementById('upcomingList').innerHTML = html || '<div class="upcoming-empty">D-3 이내 중요 일정이 없습니다.</div>';
 }
 
 /* ---------- Tabs (mobile) ---------- */
@@ -405,6 +482,7 @@ function renderBullpen() {
   var chronological = STATE.events.slice().sort(function(a,b){ return a.createdAt.localeCompare(b.createdAt); });
   var numberMap = {};
   chronological.forEach(function(e, i){ numberMap[e.id] = i + 1; });
+  STATE.numberMap = numberMap;
 
   var sorted = STATE.events.slice().sort(function(a,b){ return b.createdAt.localeCompare(a.createdAt); });
   var html = '';
@@ -413,12 +491,19 @@ function renderBullpen() {
     html += '<div class="bp-item" onclick="openEventModal(\'' + e.id + '\')">';
     html += '<div class="bp-rail"><div class="bp-num">' + numberMap[e.id] + '</div><div class="bp-rail-line"></div></div>';
     html += '<div class="bp-body">';
-    html += '<div class="bp-top"><div class="bp-title">' + (e.urgent?'<span class="bp-urgent">[긴급] </span>':'') + escapeHtml(e.title) + '</div>';
+    html += '<div class="bp-top"><div class="bp-title">' + (e.urgent?'<span class="bp-urgent">[긴급] </span>':'') + (e.important?'⭐ ':'') + escapeHtml(e.title) + '</div>';
     html += '<div class="bp-tag" style="background:' + e.color + '">' + e.category + '</div></div>';
     html += '<div class="bp-meta"><div class="bp-date">' + e.startDate + (e.endDate!==e.startDate?(' ~ ' + e.endDate):'') + '</div>';
     if (attachCount > 0) html += '<div class="bp-attach">📎 ' + attachCount + '</div>';
     html += '</div>';
     html += '<div class="bp-content">' + escapeHtml((e.content||'').slice(0,80)) + '</div>';
+    if (e.subItems && e.subItems.length) {
+      html += '<div class="bp-subwrap">';
+      e.subItems.forEach(function(s, idx){
+        html += '<div class="bp-subitem"><span class="bp-subnum">' + numberMap[e.id] + '-' + (idx+1) + '</span><span>' + escapeHtml(s) + '</span></div>';
+      });
+      html += '</div>';
+    }
     html += '</div></div>';
   });
   document.getElementById('bullpenList').innerHTML = html || '<div style="color:var(--sys-label-4);font-size:13px;text-align:center;padding:20px;">등록된 일정이 없습니다.</div>';
@@ -429,6 +514,16 @@ function escapeHtml(s) {
 }
 
 /* ---------- Event modal ---------- */
+function toggleChip(chipId, checked) {
+  document.getElementById(chipId).classList.toggle('active', checked);
+}
+
+function setSubItemInputs(values) {
+  for (var i = 0; i < 4; i++) {
+    document.getElementById('evSub' + (i+1)).value = (values && values[i]) || '';
+  }
+}
+
 function openEventModal(id, dateKeyStr) {
   document.getElementById('evId').value = '';
   document.getElementById('evTitle').value = '';
@@ -438,8 +533,12 @@ function openEventModal(id, dateKeyStr) {
   document.getElementById('evCategory').value = '기타';
   document.getElementById('evAuthor').value = '';
   document.getElementById('evUrgent').checked = false;
+  document.getElementById('evImportant').checked = false;
+  toggleChip('urgentChip', false);
+  toggleChip('importantChip', false);
   document.getElementById('evDeleteBtn').style.display = 'none';
   document.getElementById('eventModalTitle').textContent = '새 일정 작성';
+  setSubItemInputs([]);
   STATE.pendingFiles = [];
   document.getElementById('evFileList').textContent = '';
 
@@ -454,8 +553,13 @@ function openEventModal(id, dateKeyStr) {
       document.getElementById('evCategory').value = e.category;
       document.getElementById('evAuthor').value = e.author;
       document.getElementById('evUrgent').checked = e.urgent;
+      document.getElementById('evImportant').checked = e.important;
+      toggleChip('urgentChip', e.urgent);
+      toggleChip('importantChip', e.important);
       document.getElementById('evDeleteBtn').style.display = 'block';
-      document.getElementById('eventModalTitle').textContent = '일정 수정';
+      var num = STATE.numberMap[e.id];
+      document.getElementById('eventModalTitle').textContent = '일정 수정' + (num ? ' (게시물 #' + num + ')' : '');
+      setSubItemInputs(e.subItems || []);
       STATE.pendingFiles = (e.attachments || []).slice();
     }
   }
@@ -495,6 +599,13 @@ function saveEventNow() {
     category: document.getElementById('evCategory').value,
     author: document.getElementById('evAuthor').value,
     urgent: document.getElementById('evUrgent').checked,
+    important: document.getElementById('evImportant').checked,
+    subItems: [
+      document.getElementById('evSub1').value,
+      document.getElementById('evSub2').value,
+      document.getElementById('evSub3').value,
+      document.getElementById('evSub4').value
+    ],
     attachments: STATE.pendingFiles || []
   };
   requireWritePassword(function(){
@@ -567,7 +678,31 @@ function confirmWritePassword() {
 function openSubscriberModal() {
   document.getElementById('subName').value = '';
   document.getElementById('subEmail').value = '';
+  renderSubList();
   document.getElementById('subModalBackdrop').classList.add('show');
+}
+
+function renderSubList() {
+  var html = (STATE.subscribers || []).map(function(s){
+    return '<div class="sub-row"><div><div class="sub-row-name">' + escapeHtml(s.name) + '</div><div class="sub-row-email">' + escapeHtml(s.email) + '</div></div>' +
+      '<button class="sub-del" onclick="removeSubscriber(\'' + s.email.replace(/'/g,"\\'") + '\')">✕</button></div>';
+  }).join('');
+  document.getElementById('subList').innerHTML = html || '<div class="sub-list-empty">등록된 구독자가 없습니다.</div>';
+}
+
+function removeSubscriber(email) {
+  if (!confirm(email + ' 를 삭제하시겠습니까?')) return;
+  requireWritePassword(function(){
+    callApi({ action: 'deleteSubscriber', email: email, writePassword: STATE.writePassword }).then(function(res){
+      if (res.status === 'ok') {
+        toast('삭제되었습니다.');
+        STATE.subscribers = STATE.subscribers.filter(function(s){ return s.email !== email; });
+        renderSubList();
+      } else {
+        toast(res.message);
+      }
+    });
+  });
 }
 
 function submitSubscriber() {
@@ -576,7 +711,10 @@ function submitSubscriber() {
   callApi({ action: 'addSubscriber', name: name, email: email }).then(function(res){
     if (res.status === 'ok') {
       toast('등록되었습니다.');
-      closeModal('subModalBackdrop');
+      STATE.subscribers.push({ email: email, name: name, registeredAt: '' });
+      document.getElementById('subName').value = '';
+      document.getElementById('subEmail').value = '';
+      renderSubList();
     } else {
       toast(res.message);
     }
