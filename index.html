@@ -743,6 +743,8 @@ function openEventModalImpl_(id, dateKeyStr) {
   document.getElementById('eventModalTitle').textContent = '새 일정 작성';
   setSubItemInputs([]);
   STATE.pendingFiles = [];
+  STATE.pendingUploads = [];
+  document.getElementById('evFile').value = '';
   document.getElementById('evFileList').textContent = '';
 
   if (id) {
