@@ -42,7 +42,7 @@
   .top-nav{position:sticky;top:0;z-index:200;height:56px;background:rgba(245,245,247,0.82);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);border-bottom:0.5px solid var(--sys-separator);padding:0 20px;display:flex;align-items:center;justify-content:space-between;}
   .nav-title{font-size:15px;font-weight:700;}
   .nav-actions{display:flex;align-items:center;gap:8px;}
-  .icon-btn{width:34px;height:34px;border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;background:var(--sys-surface);border:1px solid var(--sys-separator);color:var(--sys-label-2);font-size:15px;cursor:pointer;}
+  .icon-btn{width:34px;height:34px;border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;background:var(--sys-surface);border:1px solid var(--sys-separator);color:var(--sys-label-2);font-size:15px;cursor:pointer;text-decoration:none;box-sizing:border-box;}
   .icon-btn:hover{background:var(--sys-surface-2);}
 
   /* ---------- Layout ---------- */
@@ -188,6 +188,7 @@
   <div class="top-nav">
     <div class="nav-title">2026년 플랜트 노조 대응</div>
     <div class="nav-actions">
+      <a class="icon-btn" href="https://docs.google.com/spreadsheets/d/1N6ugD7Ftivw2BUF-bKfVtVAkFo8cqH3XSai_DTfTBls/edit" target="_blank" rel="noopener" title="구글 스프레드시트 열기">📊</a>
       <button class="icon-btn" title="이메일 알림 등록" onclick="openSubscriberModal()">✉</button>
       <button class="icon-btn" title="편집 잠금 해제" onclick="promptWritePassword()">🔒</button>
     </div>
